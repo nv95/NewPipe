@@ -267,5 +267,9 @@
         <service
             android:name=".RouterActivity$FetcherService"
             android:exported="false"/>
+
+        <service
+            android:name=".notifications.NotificationService" />
+
     </application>
 </manifest>

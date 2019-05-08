@@ -45,6 +45,11 @@ public abstract class StreamDAO implements BasicDAO<StreamEntity> {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract void silentInsertAllInternal(final List<StreamEntity> streams);
 
+    @Query("SELECT COUNT(*) != 0 FROM " + STREAM_TABLE + " WHERE " +
+            STREAM_URL + " = :url AND " +
+            STREAM_SERVICE_ID + " = :serviceId")
+    public abstract boolean exists(long serviceId, String url);
+
     @Query("SELECT " + STREAM_ID + " FROM " + STREAM_TABLE + " WHERE " +
             STREAM_URL + " = :url AND " +
             STREAM_SERVICE_ID + " = :serviceId")

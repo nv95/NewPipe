@@ -211,7 +211,12 @@
         <item quantity="few">%s видео</item>
         <item quantity="many">%s видео</item>
     </plurals>
-    <string name="item_deleted">Элемент удалён</string>
+    <plurals name="new_streams">
+        <item quantity="one">%s новое видео</item>
+        <item quantity="few">%s новых видео</item>
+        <item quantity="many">%s новых видео</item>
+    </plurals>
+	<string name="item_deleted">Элемент удалён</string>
     <string name="delete_item_search_history">Удалить этот элемент из истории поиска?</string>
     <string name="main_page_content">Главная страница</string>
     <string name="blank_page_summary">Пустая страница</string>
