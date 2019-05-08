@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".App"
@@ -270,6 +271,15 @@
 
         <service
             android:name=".notifications.NotificationService" />
+
+        <receiver android:name=".notifications.StreamsCheckReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="org.schabi.newpipe.ACTION_CHECKSTREAMS" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <category android:name="org.schabi.newpipe.CATEGORY_CHECKSTREAMS" />
+            </intent-filter>
+        </receiver>
 
     </application>
 </manifest>

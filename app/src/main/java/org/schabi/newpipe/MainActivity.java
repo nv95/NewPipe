@@ -56,7 +56,6 @@ import org.schabi.newpipe.fragments.BackPressable;
 import org.schabi.newpipe.fragments.MainFragment;
 import org.schabi.newpipe.fragments.detail.VideoDetailFragment;
 import org.schabi.newpipe.fragments.list.search.SearchFragment;
-import org.schabi.newpipe.notifications.NotificationService;
 import org.schabi.newpipe.report.ErrorActivity;
 import org.schabi.newpipe.util.Constants;
 import org.schabi.newpipe.util.KioskTranslator;
@@ -116,9 +115,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             ErrorActivity.reportUiError(this, e);
         }
-
-        //TODO remove
-        startService(new Intent(this, NotificationService.class));
     }
 
     private void setupDrawer() throws Exception {

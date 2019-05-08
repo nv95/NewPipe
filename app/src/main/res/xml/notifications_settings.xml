@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:key="general_preferences"
+	android:title="@string/notifications">
+
+	<SwitchPreference
+		app:iconSpaceReserved="false"
+		android:defaultValue="false"
+		android:key="@string/enable_streams_notifications"
+		android:summary="@string/enable_streams_notifications_summary"
+		android:title="@string/enable_streams_notifications_title"/>
+
+</PreferenceScreen>

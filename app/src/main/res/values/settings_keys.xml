@@ -918,5 +918,5 @@
         <item>@string/list</item>
         <item>@string/grid</item>
     </string-array>
-
+    <string name="enable_streams_notifications" translatable="false">enable_streams_notifications</string>
 </resources>
