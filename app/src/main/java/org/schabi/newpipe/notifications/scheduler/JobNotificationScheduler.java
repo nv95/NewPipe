@@ -33,6 +33,7 @@ public final class JobNotificationScheduler extends NotificationsScheduler {
 		builder.setRequiresDeviceIdle(false);
 		builder.setRequiresCharging(false);
 		builder.setPersisted(false); //we do it manually
+		builder.setBackoffCriteria(options.getRetryDelay(), JobInfo.BACKOFF_POLICY_LINEAR);
 		jobScheduler.schedule(builder.build());
 	}
 

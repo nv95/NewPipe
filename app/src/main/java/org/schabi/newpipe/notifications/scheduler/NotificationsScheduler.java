@@ -36,7 +36,7 @@ public abstract class NotificationsScheduler {
 		dismiss();
 		final boolean enabled = preferences.getBoolean(context.getString(R.string.enable_streams_notifications), false);
 		if (enabled) {
-			final ScheduleOptions options = ScheduleOptions.from(preferences);
+			final ScheduleOptions options = ScheduleOptions.from(context);
 			setup(options);
 			new ScheduleLogger(context).log(this.getClass().getSimpleName() + " reconfigure(),  expected at "
 					+ DateUtils.formatDateTime(context, options.getNextJobTime(),

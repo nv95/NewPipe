@@ -4,7 +4,6 @@ import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Context;
 import android.os.Build;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 
@@ -29,7 +28,7 @@ public final class NotificationJobService extends JobService {
 	public boolean onStartJob(JobParameters params) {
 		if (NotificationsScheduler.isEnabled(getApplicationContext())) {
 			currentJob = new Job(this, ScheduleOptions
-					.from(PreferenceManager.getDefaultSharedPreferences(getApplicationContext())), params);
+					.from(getApplicationContext()), params);
 			new ScheduleLogger(this).log(this.getClass().getSimpleName() + " onStartJob()").close();
 			currentJob.start();
 			return true;
