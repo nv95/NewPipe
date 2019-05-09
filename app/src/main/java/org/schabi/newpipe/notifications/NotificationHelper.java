@@ -27,6 +27,10 @@ public final class NotificationHelper {
 		this.manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 	}
 
+	public Context getContext() {
+		return context;
+	}
+
 	public void post(NotificationData data) {
 		final String summary = context.getResources().getQuantityString(R.plurals.new_streams, data.getCount(), data.getCount());
 		final NotificationCompat.Builder builder = new NotificationCompat.Builder(context,

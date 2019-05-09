@@ -272,7 +272,13 @@
         <service
             android:name=".notifications.NotificationService" />
 
-        <receiver android:name=".notifications.StreamsCheckReceiver"
+        <service
+            android:name=".notifications.NotificationJobService"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <receiver
+            android:name=".notifications.StreamsCheckReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="org.schabi.newpipe.ACTION_CHECKSTREAMS" />

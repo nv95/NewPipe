@@ -42,7 +42,7 @@ public class NewStreams implements Disposable {
 						.toObservable()
 						.subscribeOn(Schedulers.io())
 						.observeOn(AndroidSchedulers.mainThread())
-						.subscribe(this::processSubscriptions, this::onError)
+						.subscribe(this::processSubscriptions, this::onError, this::onComplete)
 		);
 
 	}
@@ -86,6 +86,13 @@ public class NewStreams implements Disposable {
 		if (BuildConfig.DEBUG) {
 			e.printStackTrace();
 		}
+		dispose();
+		callback.onFinish(false);
+	}
+
+	private void onComplete() {
+		dispose();
+		callback.onFinish(true);
 	}
 
 	@Override
@@ -101,5 +108,7 @@ public class NewStreams implements Disposable {
 	interface Callback {
 
 		void onNewStreams(SubscriptionEntity subscription, List<StreamInfoItem> list);
+
+		void onFinish(boolean isSuccess);
 	}
 }

@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import org.schabi.newpipe.notifications.scheduler.NotificationsScheduler;
+
 public final class StreamsCheckReceiver extends BroadcastReceiver {
 
 	public static final String BROADCAST_ACTION = "org.schabi.newpipe.ACTION_CHECKSTREAMS";
@@ -20,7 +22,7 @@ public final class StreamsCheckReceiver extends BroadcastReceiver {
 				context.startService(new Intent(context, NotificationService.class));
 				break;
 			case Intent.ACTION_BOOT_COMPLETED:
-				new StreamsCheckScheduler(context).reconfigure();
+				NotificationsScheduler.getInstance(context).reconfigure();
 				break;
 		}
 	}

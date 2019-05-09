@@ -3,12 +3,12 @@ package org.schabi.newpipe.notifications;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 
-import org.schabi.newpipe.R;
 import org.schabi.newpipe.database.subscription.SubscriptionEntity;
 import org.schabi.newpipe.extractor.stream.StreamInfoItem;
+import org.schabi.newpipe.notifications.scheduler.NotificationsScheduler;
+import org.schabi.newpipe.notifications.scheduler.ScheduleLogger;
 import org.schabi.newpipe.util.NavigationHelper;
 
 import java.util.List;
@@ -20,8 +20,7 @@ public class NotificationService extends Service implements NewStreams.Callback 
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		if (!PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
-				.getBoolean(getString(R.string.enable_streams_notifications), false)) {
+		if (!NotificationsScheduler.isEnabled(getApplicationContext())) {
 			stopSelf();
 			return;
 		}
@@ -31,6 +30,7 @@ public class NotificationService extends Service implements NewStreams.Callback 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		new NewStreams(getApplicationContext(), this).test();
+		new ScheduleLogger(this).log(this.getClass().getSimpleName() + " onStartCommand()").close();
 		return super.onStartCommand(intent, flags, startId);
 	}
 
@@ -56,5 +56,11 @@ public class NotificationService extends Service implements NewStreams.Callback 
 			notification.addItem(it.getName());
 		}
 		notificationHelper.post(notification);
+	}
+
+	@Override
+	public void onFinish(boolean isSuccess) {
+		NotificationsScheduler.getInstance(this).reconfigure();
+		stopSelf();
 	}
 }

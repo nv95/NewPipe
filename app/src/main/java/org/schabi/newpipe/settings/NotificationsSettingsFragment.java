@@ -6,11 +6,11 @@ import android.support.annotation.Nullable;
 import android.support.v7.preference.Preference;
 
 import org.schabi.newpipe.R;
-import org.schabi.newpipe.notifications.StreamsCheckScheduler;
+import org.schabi.newpipe.notifications.scheduler.NotificationsScheduler;
 
 public class NotificationsSettingsFragment extends BasePreferenceFragment {
 
-	private StreamsCheckScheduler scheduler = null;
+	private NotificationsScheduler scheduler = null;
 
 	@Override
 	public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -22,7 +22,7 @@ public class NotificationsSettingsFragment extends BasePreferenceFragment {
 		super.onActivityCreated(savedInstanceState);
 		final Activity activity = getActivity();
 		if (activity != null) {
-			scheduler = new StreamsCheckScheduler(activity);
+			scheduler = NotificationsScheduler.getInstance(activity);
 		}
 	}
 
