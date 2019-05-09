@@ -17,7 +17,7 @@ import org.schabi.newpipe.util.NavigationHelper;
 
 import java.util.List;
 
-public class NotificationService extends Service implements NewStreams.Callback {
+public class NotificationService extends Service implements NewStreamsLoader.Callback {
 
 	private NotificationHelper notificationHelper;
 
@@ -30,7 +30,7 @@ public class NotificationService extends Service implements NewStreams.Callback 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (checkRequirements()) {
-			new NewStreams(getApplicationContext(), this).test();
+			new NewStreamsLoader(getApplicationContext(), this).start();
 			new ScheduleLogger(this).log(this.getClass().getSimpleName() + " onStartCommand()").close();
 		} else {
 			stopSelf();

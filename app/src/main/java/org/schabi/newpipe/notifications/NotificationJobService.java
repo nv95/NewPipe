@@ -51,22 +51,22 @@ public final class NotificationJobService extends JobService {
 		}
 	}
 
-	class Job implements NewStreams.Callback, Disposable {
+	class Job implements NewStreamsLoader.Callback, Disposable {
 
 		private final ScheduleOptions options;
 		private final JobParameters parameters;
-		private final NewStreams streams;
+		private final NewStreamsLoader streams;
 		private final NotificationHelper notificationHelper;
 
 		Job(Context context, ScheduleOptions options, JobParameters parameters) {
 			this.options = options;
 			this.parameters = parameters;
-			this.streams = new NewStreams(context, this);
+			this.streams = new NewStreamsLoader(context, this);
 			this.notificationHelper = new NotificationHelper(context);
 		}
 
 		void start() {
-			streams.test();
+			streams.start();
 		}
 
 		@Override

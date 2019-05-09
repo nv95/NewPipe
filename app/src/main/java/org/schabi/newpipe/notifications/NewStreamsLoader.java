@@ -20,7 +20,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class NewStreams implements Disposable {
+public class NewStreamsLoader implements Disposable {
 
 	private final Context context;
 	private final CompositeDisposable disposables;
@@ -28,7 +28,7 @@ public class NewStreams implements Disposable {
 	private final StreamDAO streamTable;
 	private final Callback callback;
 
-	NewStreams(Context context, Callback callback) {
+	NewStreamsLoader(Context context, Callback callback) {
 		this.context = context;
 		this.callback = callback;
 		this.disposables = new CompositeDisposable();
@@ -36,7 +36,7 @@ public class NewStreams implements Disposable {
 		this.streamTable = database.streamDAO();
 	}
 
-	public void test() {
+	public void start() {
 		disposables.add(
 				SubscriptionService.getInstance(context).getSubscription()
 						.toObservable()
