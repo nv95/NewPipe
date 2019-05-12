@@ -8,29 +8,26 @@ import android.net.NetworkInfo;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
-import org.schabi.newpipe.database.subscription.SubscriptionEntity;
-import org.schabi.newpipe.extractor.stream.StreamInfoItem;
 import org.schabi.newpipe.notifications.scheduler.NotificationsScheduler;
 import org.schabi.newpipe.notifications.scheduler.ScheduleLogger;
 import org.schabi.newpipe.notifications.scheduler.ScheduleOptions;
-import org.schabi.newpipe.util.NavigationHelper;
-
-import java.util.List;
 
 public class NotificationService extends Service implements NewStreamsLoader.Callback {
 
 	private NotificationHelper notificationHelper;
+	private NewStreamsLoader loader;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		notificationHelper = new NotificationHelper(getApplicationContext());
+		loader = new NewStreamsLoader(getApplicationContext(), this);
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (checkRequirements()) {
-			new NewStreamsLoader(getApplicationContext(), this).start();
+			loader.start();
 			new ScheduleLogger(this).log(this.getClass().getSimpleName() + " onStartCommand()").close();
 		} else {
 			stopSelf();
@@ -45,21 +42,14 @@ public class NotificationService extends Service implements NewStreamsLoader.Cal
 	}
 
 	@Override
-	public void onNewStreams(SubscriptionEntity subscription, List<StreamInfoItem> list) {
-		final NotificationData notification = new NotificationData();
-		notification.setTitle(subscription.getName());
-		notification.setId((int) subscription.getUid());
-		notification.setIconUrl(subscription.getAvatarUrl());
-		notification.setIntent(NavigationHelper.getChannelIntent(
-				this,
-				subscription.getServiceId(),
-				subscription.getUrl(),
-				subscription.getName()
-		));
-		for (StreamInfoItem it : list) {
-			notification.addItem(it.getName());
-		}
-		notificationHelper.post(notification);
+	public void onNewStreams(ChannelUpdates updates) {
+		notificationHelper.notify(updates);
+	}
+
+	@Override
+	public void onDestroy() {
+		loader.dispose();
+		super.onDestroy();
 	}
 
 	@Override

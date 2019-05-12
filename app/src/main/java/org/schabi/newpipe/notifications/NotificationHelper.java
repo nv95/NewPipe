@@ -9,6 +9,7 @@ import android.support.v4.content.ContextCompat;
 
 import org.schabi.newpipe.BuildConfig;
 import org.schabi.newpipe.R;
+import org.schabi.newpipe.extractor.stream.StreamInfoItem;
 
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -31,11 +32,11 @@ public final class NotificationHelper {
 		return context;
 	}
 
-	public void post(NotificationData data) {
+	public void notify(ChannelUpdates data) {
 		final String summary = context.getResources().getQuantityString(R.plurals.new_streams, data.getCount(), data.getCount());
 		final NotificationCompat.Builder builder = new NotificationCompat.Builder(context,
 				context.getString(R.string.streams_notification_channel_id));
-		builder.setContentTitle(String.format("%s • %s", data.getTitle(),summary));
+		builder.setContentTitle(String.format("%s • %s", data.getName(), summary));
 		builder.setContentText(data.getText());
 		builder.setNumber(data.getCount());
 		builder.setBadgeIconType(NotificationCompat.BADGE_ICON_LARGE);
@@ -47,21 +48,21 @@ public final class NotificationHelper {
 		builder.setAutoCancel(true);
 		builder.setCategory(NotificationCompat.CATEGORY_SOCIAL);
 		final NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
-		for (CharSequence o : data.getItems()) {
-			style.addLine(o);
+		for (StreamInfoItem o : data.getStreams()) {
+			style.addLine(o.getName());
 		}
 		style.setSummaryText(summary);
-		style.setBigContentTitle(data.getTitle());
+		style.setBigContentTitle(data.getName());
 		builder.setStyle(style);
 		builder.setContentIntent(PendingIntent.getActivity(
 				context,
 				data.getId(),
-				data.getIntent(),
+				data.createOpenChannelIntent(context),
 				0
 		));
 
 		disposable.add(
-				Single.create(new NotificationIcon(context, data.getIconUrl()))
+				Single.create(new NotificationIcon(context, data.getAvatarUrl()))
 						.subscribeOn(Schedulers.io())
 						.observeOn(AndroidSchedulers.mainThread())
 						.doAfterTerminate(() -> manager.notify(data.getId(), builder.build()))

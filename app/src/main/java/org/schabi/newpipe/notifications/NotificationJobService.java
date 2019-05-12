@@ -7,14 +7,9 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 
-import org.schabi.newpipe.database.subscription.SubscriptionEntity;
-import org.schabi.newpipe.extractor.stream.StreamInfoItem;
 import org.schabi.newpipe.notifications.scheduler.NotificationsScheduler;
 import org.schabi.newpipe.notifications.scheduler.ScheduleLogger;
 import org.schabi.newpipe.notifications.scheduler.ScheduleOptions;
-import org.schabi.newpipe.util.NavigationHelper;
-
-import java.util.List;
 
 import io.reactivex.disposables.Disposable;
 
@@ -80,21 +75,8 @@ public final class NotificationJobService extends JobService {
 		}
 
 		@Override
-		public void onNewStreams(SubscriptionEntity subscription, List<StreamInfoItem> list) {
-			final NotificationData notification = new NotificationData();
-			notification.setTitle(subscription.getName());
-			notification.setId((int) subscription.getUid());
-			notification.setIconUrl(subscription.getAvatarUrl());
-			notification.setIntent(NavigationHelper.getChannelIntent(
-					getApplicationContext(),
-					subscription.getServiceId(),
-					subscription.getUrl(),
-					subscription.getName()
-			));
-			for (StreamInfoItem it : list) {
-				notification.addItem(it.getName());
-			}
-			notificationHelper.post(notification);
+		public void onNewStreams(ChannelUpdates updates) {
+			notificationHelper.notify(updates);
 		}
 
 		@Override
