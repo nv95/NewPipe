@@ -8,6 +8,7 @@ public class Migrations {
 
     public static final int DB_VER_11_0 = 1;
     public static final int DB_VER_12_0 = 2;
+    public static final int DB_VER_13_0 = 3;
 
     public static final Migration MIGRATION_11_12 = new Migration(DB_VER_11_0, DB_VER_12_0) {
         @Override
@@ -56,6 +57,14 @@ public class Migrations {
                     "ORDER BY creation_date DESC");
 
             database.execSQL("DROP TABLE IF EXISTS watch_history");
+        }
+    };
+
+    public static final Migration MIGRATION_12_13 = new Migration(DB_VER_12_0, DB_VER_13_0) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE `subscriptions` ADD COLUMN `notification_mode` INTEGER NOT NULL DEFAULT 0");
+            database.execSQL("UPDATE `subscriptions` SET `notification_mode` = 1"); //enable all notifications for first time
         }
     };
 }

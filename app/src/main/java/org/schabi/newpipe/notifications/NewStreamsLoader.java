@@ -7,6 +7,7 @@ import android.support.annotation.WorkerThread;
 import org.schabi.newpipe.BuildConfig;
 import org.schabi.newpipe.NewPipeDatabase;
 import org.schabi.newpipe.database.stream.dao.StreamDAO;
+import org.schabi.newpipe.database.subscription.NotificationMode;
 import org.schabi.newpipe.extractor.stream.StreamInfoItem;
 import org.schabi.newpipe.local.subscription.SubscriptionService;
 import org.schabi.newpipe.util.ExtractorHelper;
@@ -38,6 +39,7 @@ public class NewStreamsLoader implements Disposable {
 				.subscribeOn(Schedulers.newThread())
 				.firstOrError()
 				.flatMapObservable(Observable::fromIterable)
+				.filter(subscription -> subscription.getNotificationMode() != NotificationMode.DISABLED)
 				.flatMapSingle(subscription -> ExtractorHelper.getChannelInfo(subscription.getServiceId(), subscription.getUrl(), true))
 				.map(channel -> ChannelUpdates.from(channel, filterStreams(channel.getRelatedItems())))
 				.filter(ChannelUpdates::isNotEmpty)

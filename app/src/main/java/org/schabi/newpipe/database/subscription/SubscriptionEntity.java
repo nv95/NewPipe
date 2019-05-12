@@ -27,6 +27,7 @@ public class SubscriptionEntity {
     final static String SUBSCRIPTION_AVATAR_URL         = "avatar_url";
     final static String SUBSCRIPTION_SUBSCRIBER_COUNT   = "subscriber_count";
     final static String SUBSCRIPTION_DESCRIPTION        = "description";
+    final static String SUBSCRIPTION_NOTIFICATION_MODE  = "notification_mode";
 
     @PrimaryKey(autoGenerate = true)
     private long uid = 0;
@@ -48,6 +49,9 @@ public class SubscriptionEntity {
 
     @ColumnInfo(name = SUBSCRIPTION_DESCRIPTION)
     private String description;
+
+    @ColumnInfo(name = SUBSCRIPTION_NOTIFICATION_MODE)
+    private int notificationMode;
 
     public long getUid() {
         return uid;
@@ -103,6 +107,15 @@ public class SubscriptionEntity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @NotificationMode
+    public int getNotificationMode() {
+        return notificationMode;
+    }
+
+    public void setNotificationMode(@NotificationMode int notificationMode) {
+        this.notificationMode = notificationMode;
     }
 
     @Ignore
