@@ -7,6 +7,7 @@ import android.util.Log;
 import org.schabi.newpipe.MainActivity;
 import org.schabi.newpipe.NewPipeDatabase;
 import org.schabi.newpipe.database.AppDatabase;
+import org.schabi.newpipe.database.subscription.NotificationMode;
 import org.schabi.newpipe.database.subscription.SubscriptionDAO;
 import org.schabi.newpipe.database.subscription.SubscriptionEntity;
 import org.schabi.newpipe.extractor.channel.ChannelInfo;
@@ -137,6 +138,18 @@ public class SubscriptionService {
         return subscriptionTable().getSubscription(info.getServiceId(), info.getUrl())
                 .firstOrError()
                 .flatMapCompletable(update);
+    }
+
+    public Completable updateNotificationMode(@NonNull final ChannelInfo channel, @NotificationMode final int mode) {
+        return subscriptionTable().getSubscription(channel.getServiceId(), channel.getUrl())
+                .subscribeOn(subscriptionScheduler)
+                .firstElement()
+                .flatMap(list -> list.isEmpty() ? Maybe.empty() : Maybe.just(list.get(0)))
+                .flatMapCompletable(entity -> Completable.fromAction(() -> {
+                    entity.setNotificationMode(mode);
+                    subscriptionTable().update(entity);
+                }));
+
     }
 
     public List<SubscriptionEntity> upsertAll(final List<ChannelInfo> infoList) {

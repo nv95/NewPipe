@@ -5,6 +5,13 @@
     tools:context=".fragments.list.impl.ChannelFragment">
 
     <item
+        android:id="@+id/menu_item_notify"
+        android:checkable="true"
+        android:visible="false"
+        android:title="@string/get_notified"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/menu_item_openInBrowser"
         android:title="@string/open_in_browser"
         app:showAsAction="never"/>

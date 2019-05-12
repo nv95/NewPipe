@@ -624,5 +624,8 @@
     <string name="pause_downloads_on_mobile">Pause on switching to mobile data</string>
     <string name="pause_downloads_on_mobile_desc">Downloads that can not be paused will be restarted</string>
     <string name="close">Close</string>
+	<string name="notifications_disabled">Notifications are disabled</string>
+	<string name="get_notified">Get notified</string>
+	<string name="you_successfully_subscribed">You now subscribed on this channel</string>
 
 </resources>

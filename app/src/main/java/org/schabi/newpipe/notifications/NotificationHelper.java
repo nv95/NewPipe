@@ -1,10 +1,16 @@
 package org.schabi.newpipe.notifications;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 
 import org.schabi.newpipe.BuildConfig;
@@ -70,5 +76,39 @@ public final class NotificationHelper {
 							if (BuildConfig.DEBUG) throwable.printStackTrace();
 						})
 		);
+	}
+
+	/**
+	 * Check whether notifications are not disabled by user via system settings
+	 * @param context Context
+	 * @return true if notifications are allowed, false otherwise
+	 */
+	public static boolean isNotificationsEnabledNative(Context context) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			final String channelId = context.getString(R.string.streams_notification_channel_id);
+			final NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+			if (manager != null) {
+				final NotificationChannel channel = manager.getNotificationChannel(channelId);
+				return channel != null && channel.getImportance() != NotificationManager.IMPORTANCE_NONE;
+			} else {
+				return false;
+			}
+		} else {
+			return NotificationManagerCompat.from(context).areNotificationsEnabled();
+		}
+	}
+
+	public static void openNativeSettingsScreen(Context context) {
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+			final String channelId = context.getString(R.string.streams_notification_channel_id);
+			final Intent intent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+					.putExtra(Settings.EXTRA_APP_PACKAGE, context.getPackageName())
+					.putExtra(Settings.EXTRA_CHANNEL_ID, channelId);
+			context.startActivity(intent);
+		} else {
+			final Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+			intent.setData(Uri.parse("package:" + context.getPackageName()));
+			context.startActivity(intent);
+		}
 	}
 }
