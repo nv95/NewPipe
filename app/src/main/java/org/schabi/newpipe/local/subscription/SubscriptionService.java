@@ -140,8 +140,8 @@ public class SubscriptionService {
                 .flatMapCompletable(update);
     }
 
-    public Completable updateNotificationMode(@NonNull final ChannelInfo channel, @NotificationMode final int mode) {
-        return subscriptionTable().getSubscription(channel.getServiceId(), channel.getUrl())
+    public Completable updateNotificationMode(final int serviceId, final String url, @NotificationMode final int mode) {
+        return subscriptionTable().getSubscription(serviceId, url)
                 .subscribeOn(subscriptionScheduler)
                 .firstElement()
                 .flatMap(list -> list.isEmpty() ? Maybe.empty() : Maybe.just(list.get(0)))
@@ -149,7 +149,6 @@ public class SubscriptionService {
                     entity.setNotificationMode(mode);
                     subscriptionTable().update(entity);
                 }));
-
     }
 
     public List<SubscriptionEntity> upsertAll(final List<ChannelInfo> infoList) {

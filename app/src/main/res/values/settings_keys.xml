@@ -945,4 +945,5 @@
         <item>@string/any_network</item>
         <item>@string/wifi_only</item>
     </string-array>
+    <string name="streams_notifications_channels_key" translatable="false">streams_notifications_channels</string>
 </resources>

@@ -7,9 +7,19 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.preference.Preference;
 
+import org.schabi.newpipe.BuildConfig;
 import org.schabi.newpipe.R;
+import org.schabi.newpipe.database.subscription.NotificationMode;
+import org.schabi.newpipe.database.subscription.SubscriptionEntity;
+import org.schabi.newpipe.local.subscription.SubscriptionService;
 import org.schabi.newpipe.notifications.NotificationHelper;
 import org.schabi.newpipe.notifications.scheduler.NotificationsScheduler;
+
+import java.util.List;
+import java.util.Locale;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 
 public class NotificationsSettingsFragment extends BasePreferenceFragment {
 
@@ -17,6 +27,8 @@ public class NotificationsSettingsFragment extends BasePreferenceFragment {
 	private NotificationsScheduler scheduler = null;
 	@Nullable
 	private Snackbar notificationWarningSnackbar = null;
+	@Nullable
+	private Disposable loader;
 
 	@Override
 	public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -64,6 +76,41 @@ public class NotificationsSettingsFragment extends BasePreferenceFragment {
 				notificationWarningSnackbar.dismiss();
 				notificationWarningSnackbar = null;
 			}
+		}
+		if (loader != null) {
+			loader.dispose();
+		}
+		loader = SubscriptionService.getInstance(requireContext())
+				.getSubscription()
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe(this::updateSubscriptions, this::onError);
+	}
+
+	@Override
+	public void onPause() {
+		if (loader != null) {
+			loader.dispose();
+		}
+		loader = null;
+		super.onPause();
+	}
+
+	private void updateSubscriptions(List<SubscriptionEntity> list) {
+		int notified = 0;
+		for (SubscriptionEntity o : list) {
+			if (o.getNotificationMode() != NotificationMode.DISABLED) {
+				notified++;
+			}
+		}
+		final Preference preference = findPreference(getString(R.string.streams_notifications_channels_key));
+		if (preference != null) {
+			preference.setSummary(String.format(Locale.US, "%d/%d", notified, list.size()));
+		}
+	}
+
+	private void onError(Throwable e) {
+		if (BuildConfig.DEBUG) {
+			e.printStackTrace();
 		}
 	}
 }

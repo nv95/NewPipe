@@ -31,4 +31,11 @@
 		android:title="@string/streams_notifications_network_title"
 		app:iconSpaceReserved="false" />
 
+	<Preference
+		android:fragment="org.schabi.newpipe.settings.notifications.NotificationsChannelsConfigFragment"
+		android:dependency="@string/enable_streams_notifications"
+		android:key="@string/streams_notifications_channels_key"
+		android:title="@string/channels"
+		app:iconSpaceReserved="false" />
+
 </PreferenceScreen>
