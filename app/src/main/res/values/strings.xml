@@ -492,6 +492,8 @@
 
     <string name="enable_disposed_exceptions_title">Report out-of-lifecycle errors</string>
     <string name="enable_disposed_exceptions_summary">Force reporting of undeliverable Rx exceptions outside of fragment or activity lifecycle after disposal</string>
+    <string name="show_notifications_log_title">Show notification checker log</string>
+    <string name="show_notifications_log_summary">Information about task scheduling</string>
 
     <!-- Subscriptions import/export -->
     <string name="import_export_title">Import/export</string>

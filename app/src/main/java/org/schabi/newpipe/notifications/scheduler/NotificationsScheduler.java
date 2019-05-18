@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.text.format.DateUtils;
+import android.text.format.DateFormat;
 
 import org.schabi.newpipe.R;
 
@@ -39,8 +39,7 @@ public abstract class NotificationsScheduler {
 			final ScheduleOptions options = ScheduleOptions.from(context);
 			setup(options);
 			new ScheduleLogger(context).log(this.getClass().getSimpleName() + " reconfigure(),  expected at "
-					+ DateUtils.formatDateTime(context, options.getNextJobTime(),
-					DateUtils.FORMAT_SHOW_DATE + DateUtils.FORMAT_SHOW_TIME)).close();
+					+ DateFormat.format("dd MMM kk:mm", options.getNextJobTime())).close();
 		}
 	}
 

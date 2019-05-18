@@ -113,6 +113,7 @@
     <string name="allow_heap_dumping_key" translatable="false">allow_heap_dumping_key</string>
 
     <string name="allow_disposed_exceptions_key" translatable="false">allow_disposed_exceptions_key</string>
+    <string name="show_notifications_log" translatable="false">show_notifications_log</string>
 
     <!-- THEMES -->
     <string name="theme_key" translatable="false">theme</string>
