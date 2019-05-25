@@ -12,22 +12,35 @@ import org.schabi.newpipe.notifications.scheduler.NotificationsScheduler;
 import org.schabi.newpipe.notifications.scheduler.ScheduleLogger;
 import org.schabi.newpipe.notifications.scheduler.ScheduleOptions;
 
-public class NotificationService extends Service implements NewStreamsLoader.Callback {
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
+
+public class NotificationService extends Service {
 
 	private NotificationHelper notificationHelper;
-	private NewStreamsLoader loader;
+	@Nullable
+	private Disposable worker = null;
+	private Flowable<ChannelUpdates> updatesFlowable;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		notificationHelper = new NotificationHelper(getApplicationContext());
-		loader = new NewStreamsLoader(getApplicationContext(), this);
+		updatesFlowable = Flowable.create(new SubscriptionUpdates(getApplicationContext()), BackpressureStrategy.BUFFER)
+				.subscribeOn(Schedulers.newThread())
+				.observeOn(AndroidSchedulers.mainThread());
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (checkRequirements()) {
-			loader.start();
+			if (worker != null) {
+				worker.dispose();
+			}
+			worker = updatesFlowable.subscribe(notificationHelper::notify, this::onError, this::onComplete);
 			new ScheduleLogger(this).log(this.getClass().getSimpleName() + " onStartCommand()").close();
 		} else {
 			stopSelf();
@@ -42,18 +55,22 @@ public class NotificationService extends Service implements NewStreamsLoader.Cal
 	}
 
 	@Override
-	public void onNewStreams(ChannelUpdates updates) {
-		notificationHelper.notify(updates);
-	}
-
-	@Override
 	public void onDestroy() {
-		loader.dispose();
+		if (worker != null) {
+			worker.dispose();
+		}
 		super.onDestroy();
 	}
 
-	@Override
-	public void onFinish(boolean isSuccess) {
+	private void onError(Throwable error) {
+		new ScheduleLogger(getApplicationContext())
+				.log(error.getClass().getSimpleName() + ": " + error.getMessage())
+				.close();
+		NotificationsScheduler.getInstance(this).reconfigure();
+		stopSelf();
+	}
+
+	private void onComplete() {
 		NotificationsScheduler.getInstance(this).reconfigure();
 		stopSelf();
 	}

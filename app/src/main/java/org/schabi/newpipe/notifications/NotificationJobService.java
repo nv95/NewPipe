@@ -11,7 +11,12 @@ import org.schabi.newpipe.notifications.scheduler.NotificationsScheduler;
 import org.schabi.newpipe.notifications.scheduler.ScheduleLogger;
 import org.schabi.newpipe.notifications.scheduler.ScheduleOptions;
 
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public final class NotificationJobService extends JobService {
@@ -46,47 +51,50 @@ public final class NotificationJobService extends JobService {
 		}
 	}
 
-	class Job implements NewStreamsLoader.Callback, Disposable {
+	class Job implements Disposable {
 
 		private final ScheduleOptions options;
 		private final JobParameters parameters;
-		private final NewStreamsLoader streams;
+		@Nullable
+		private Disposable worker = null;
+		private final Flowable<ChannelUpdates> updatesFlowable;
 		private final NotificationHelper notificationHelper;
 
 		Job(Context context, ScheduleOptions options, JobParameters parameters) {
 			this.options = options;
 			this.parameters = parameters;
-			this.streams = new NewStreamsLoader(context, this);
+			this.updatesFlowable = Flowable.create(new SubscriptionUpdates(context), BackpressureStrategy.BUFFER)
+					.subscribeOn(Schedulers.newThread())
+					.observeOn(AndroidSchedulers.mainThread());
 			this.notificationHelper = new NotificationHelper(context);
 		}
 
 		void start() {
-			streams.start();
+			worker = updatesFlowable.subscribe(notificationHelper::notify, this::onError, this::onComplete);
 		}
 
 		@Override
 		public void dispose() {
-			streams.dispose();
+			if (worker != null) {
+				worker.dispose();
+			}
 		}
 
 		@Override
 		public boolean isDisposed() {
-			return streams.isDisposed();
+			return worker == null || worker.isDisposed();
 		}
 
-		@Override
-		public void onNewStreams(ChannelUpdates updates) {
-			notificationHelper.notify(updates);
+		private void onError(Throwable error) {
+			new ScheduleLogger(getApplicationContext())
+					.log(error.getClass().getSimpleName() + ": " + error.getMessage())
+					.close();
+			jobFinished(parameters, true);
 		}
 
-		@Override
-		public void onFinish(boolean isSuccess) {
-			if (isSuccess) {
-				NotificationsScheduler.getInstance(getApplicationContext()).reconfigure();
-				jobFinished(parameters, false);
-			} else {
-				jobFinished(parameters, true);
-			}
+		private void onComplete() {
+			NotificationsScheduler.getInstance(getApplicationContext()).reconfigure();
+			jobFinished(parameters, false);
 		}
 	}
 }
