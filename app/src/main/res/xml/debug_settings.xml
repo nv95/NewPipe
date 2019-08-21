@@ -18,4 +18,10 @@
         android:key="@string/allow_disposed_exceptions_key"
         android:title="@string/enable_disposed_exceptions_title"
         android:summary="@string/enable_disposed_exceptions_summary"/>
+
+    <Preference
+        app:iconSpaceReserved="false"
+        android:key="@string/show_notifications_log"
+        android:title="@string/show_notifications_log_title"
+        android:summary="@string/show_notifications_log_summary"/>
 </PreferenceScreen>

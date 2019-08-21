@@ -6,7 +6,6 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -23,7 +22,7 @@ import org.acra.config.ConfigurationBuilder;
 import org.acra.sender.ReportSenderFactory;
 import org.schabi.newpipe.extractor.Downloader;
 import org.schabi.newpipe.extractor.NewPipe;
-import org.schabi.newpipe.extractor.utils.Localization;
+import org.schabi.newpipe.notifications.scheduler.NotificationsScheduler;
 import org.schabi.newpipe.report.AcraReportSenderFactory;
 import org.schabi.newpipe.report.ErrorActivity;
 import org.schabi.newpipe.report.UserAction;
@@ -105,6 +104,9 @@ public class App extends Application {
 
         configureRxJavaErrorHandler();
 
+        if (NotificationsScheduler.isEnabled(this)) {
+            NotificationsScheduler.getInstance(this).reconfigure();
+        }
         // Check for new version
         new CheckForNewAppVersionTask().execute();
     }
@@ -220,6 +222,7 @@ public class App extends Application {
         mNotificationManager.createNotificationChannel(mChannel);
 
         setUpUpdateNotificationChannel(importance);
+        setUpStreamsNotificationChannel();
     }
 
     /**
@@ -243,6 +246,21 @@ public class App extends Application {
         NotificationManager appUpdateNotificationManager
                 = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         appUpdateNotificationManager.createNotificationChannel(appUpdateChannel);
+    }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private void setUpStreamsNotificationChannel() {
+        NotificationChannel channel = new NotificationChannel(
+                getString(R.string.streams_notification_channel_id),
+                getString(R.string.streams_notification_channel_name),
+                NotificationManager.IMPORTANCE_DEFAULT
+        );
+        channel.setDescription(getString(R.string.streams_notification_channel_description));
+        channel.enableVibration(false);
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (manager != null) {
+            manager.createNotificationChannel(channel);
+        }
     }
 
     @Nullable

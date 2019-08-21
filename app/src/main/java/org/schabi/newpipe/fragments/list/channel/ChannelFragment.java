@@ -4,8 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.text.TextUtils;
@@ -24,6 +26,7 @@ import android.widget.TextView;
 import com.jakewharton.rxbinding2.view.RxView;
 
 import org.schabi.newpipe.R;
+import org.schabi.newpipe.database.subscription.NotificationMode;
 import org.schabi.newpipe.database.subscription.SubscriptionEntity;
 import org.schabi.newpipe.extractor.InfoItem;
 import org.schabi.newpipe.extractor.ListExtractor;
@@ -33,6 +36,7 @@ import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.stream.StreamInfoItem;
 import org.schabi.newpipe.fragments.list.BaseListInfoFragment;
 import org.schabi.newpipe.local.subscription.SubscriptionService;
+import org.schabi.newpipe.notifications.NotificationHelper;
 import org.schabi.newpipe.player.playqueue.ChannelPlayQueue;
 import org.schabi.newpipe.player.playqueue.PlayQueue;
 import org.schabi.newpipe.report.UserAction;
@@ -84,6 +88,7 @@ public class ChannelFragment extends BaseListInfoFragment<ChannelInfo> {
     private LinearLayout headerBackgroundButton;
 
     private MenuItem menuRssButton;
+    private MenuItem menuNotifyButton;
 
     public static ChannelFragment getInstance(int serviceId, String url, String name) {
         ChannelFragment instance = new ChannelFragment();
@@ -160,6 +165,7 @@ public class ChannelFragment extends BaseListInfoFragment<ChannelInfo> {
             if (DEBUG) Log.d(TAG, "onCreateOptionsMenu() called with: menu = [" + menu +
                     "], inflater = [" + inflater + "]");
             menuRssButton = menu.findItem(R.id.menu_item_rss);
+            menuNotifyButton = menu.findItem(R.id.menu_item_notify);
         }
     }
 
@@ -174,6 +180,11 @@ public class ChannelFragment extends BaseListInfoFragment<ChannelInfo> {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.menu_item_notify:
+                final boolean value = !item.isChecked();
+                item.setEnabled(false);
+                setNotify(value);
+                break;
             case R.id.menu_item_rss:
                 openRssFeed();
                 break;
@@ -213,14 +224,21 @@ public class ChannelFragment extends BaseListInfoFragment<ChannelInfo> {
                 .subscribe(getSubscribeUpdateMonitor(info), onError));
 
         disposables.add(observable
-                // Some updates are very rapid (when calling the updateSubscription(info), for example)
-                // so only update the UI for the latest emission ("sync" the subscribe button's state)
-                .debounce(100, TimeUnit.MILLISECONDS)
+                .map(List::isEmpty)
+                .distinctUntilChanged()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe((List<SubscriptionEntity> subscriptionEntities) ->
-                        updateSubscribeButton(!subscriptionEntities.isEmpty())
-                        , onError));
+                .subscribe(isEmpty -> updateSubscribeButton(!isEmpty), onError));
 
+
+        disposables.add(observable
+                .map(List::isEmpty)
+                .filter(x -> isNotificationsEnabled())
+                .distinctUntilChanged()
+                .skip(1)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(isEmpty -> {
+                    if (!isEmpty) showNotifySnackbar();
+                }, onError));
     }
 
     private Function<Object, Object> mapOnSubscribe(final SubscriptionEntity subscription) {
@@ -292,10 +310,12 @@ public class ChannelFragment extends BaseListInfoFragment<ChannelInfo> {
                         info.getAvatarUrl(),
                         info.getDescription(),
                         info.getSubscriberCount());
+                updateNotifyButton(null);
                 subscribeButtonMonitor = monitorSubscribeButton(headerSubscribeButton, mapOnSubscribe(channel));
             } else {
                 if (DEBUG) Log.d(TAG, "Found subscription to this channel!");
                 final SubscriptionEntity subscription = subscriptionEntities.get(0);
+                updateNotifyButton(subscription);
                 subscribeButtonMonitor = monitorSubscribeButton(headerSubscribeButton, mapOnUnsubscribe(subscription));
             }
         };
@@ -324,6 +344,35 @@ public class ChannelFragment extends BaseListInfoFragment<ChannelInfo> {
         }
 
         animateView(headerSubscribeButton, AnimationUtils.Type.LIGHT_SCALE_AND_ALPHA, true, 100);
+    }
+
+    private void updateNotifyButton(@Nullable SubscriptionEntity subscription) {
+        if (menuNotifyButton == null) {
+            return;
+        }
+        if (subscription == null) {
+            menuNotifyButton.setVisible(false);
+        } else {
+            menuNotifyButton.setEnabled(isNotificationsEnabled());
+            menuNotifyButton.setChecked(subscription.getNotificationMode() != NotificationMode.DISABLED);
+            menuNotifyButton.setVisible(true);
+        }
+    }
+
+    private void setNotify(boolean isEnabled) {
+        final int mode = isEnabled ? NotificationMode.ENABLED_DEFAULT : NotificationMode.DISABLED;
+        disposables.add(
+                subscriptionService.updateNotificationMode(currentInfo.getServiceId(), currentInfo.getUrl(), mode)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe()
+        );
+    }
+
+    private void showNotifySnackbar() {
+        Snackbar.make(itemsList, R.string.you_successfully_subscribed, Snackbar.LENGTH_LONG)
+                .setAction(R.string.get_notified, v -> setNotify(true))
+                .setActionTextColor(ContextCompat.getColor(itemsList.getContext(), R.color.snackbar_action_color))
+                .show();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -449,5 +498,11 @@ public class ChannelFragment extends BaseListInfoFragment<ChannelInfo> {
     public void setTitle(String title) {
         super.setTitle(title);
         if (!useAsFrontPage) headerTitleView.setText(title);
+    }
+
+    private boolean isNotificationsEnabled() {
+        return PreferenceManager.getDefaultSharedPreferences(getContext())
+                .getBoolean(getString(R.string.enable_streams_notifications), false)
+                && NotificationHelper.isNotificationsEnabledNative(getContext());
     }
 }
