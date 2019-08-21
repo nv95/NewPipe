@@ -577,6 +577,7 @@
 	<string name="notifications_disabled">Notifications are disabled</string>
 	<string name="get_notified">Get notified</string>
 	<string name="you_successfully_subscribed">You now subscribed on this channel</string>
+	<string name="create_shortcut">Create shortcut</string>
     <string name="enable_queue_limit">Limit download queue</string>
     <string name="enable_queue_limit_desc">One download will run at the same time</string>
     <string name="start_downloads">Start downloads</string>
