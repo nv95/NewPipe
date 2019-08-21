@@ -449,12 +449,13 @@
     <string name="enable_leak_canary_summary">Memory leak monitoring may cause the app to become unresponsive when heap dumping</string>
     <string name="enable_disposed_exceptions_title">Report out-of-lifecycle errors</string>
     <string name="enable_disposed_exceptions_summary">Force reporting of undeliverable Rx exceptions outside of fragment or activity lifecycle after disposal</string>
-<<<<<<< HEAD
-=======
+
     <string name="show_notifications_log_title">Show notification checker log</string>
     <string name="show_notifications_log_summary">Information about task scheduling</string>
 
->>>>>>> feature/notifications
+    <string name="show_notifications_log_title">Show notification checker log</string>
+    <string name="show_notifications_log_summary">Information about task scheduling</string>
+
     <!-- Subscriptions import/export -->
     <string name="import_export_title">Import/export</string>
     <string name="import_title">Import</string>
@@ -497,8 +498,6 @@
         <item>240p</item>
         <item>144p</item>
     </string-array>
-<<<<<<< HEAD
-=======
 
     <!-- Notifications settings -->
     <string name="enable_streams_notifications_title">New streams notifications</string>
@@ -512,8 +511,6 @@
     <string name="streams_notifications_network_title">Required network connection</string>
     <string name="any_network">Any network</string>
     <string name="wifi_only">WiFi only</string>
-
->>>>>>> feature/notifications
     <!-- Updates Settings -->
     <string name="updates_setting_title">Updates</string>
     <string name="updates_setting_description">Show a notification to prompt app update when a new version is available</string>
@@ -577,6 +574,9 @@
     <string name="pause_downloads_on_mobile">Interrupt on metered networks</string>
     <string name="pause_downloads_on_mobile_desc">Useful when switching to mobile data, although some downloads cannot be suspended</string>
     <string name="close">Close</string>
+	<string name="notifications_disabled">Notifications are disabled</string>
+	<string name="get_notified">Get notified</string>
+	<string name="you_successfully_subscribed">You now subscribed on this channel</string>
     <string name="enable_queue_limit">Limit download queue</string>
     <string name="enable_queue_limit_desc">One download will run at the same time</string>
     <string name="start_downloads">Start downloads</string>
@@ -589,5 +589,6 @@
 	<string name="notifications_disabled">Notifications are disabled</string>
 	<string name="get_notified">Get notified</string>
 	<string name="you_successfully_subscribed">You now subscribed on this channel</string>
+    <string name="downloads_storage_ask_summary_kitkat">You will be asked where to save each download.\nEnable this option if you want download to the external SD Card</string>
 
 </resources>
